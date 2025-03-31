@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-приложение
+spec:
+  replicas: 4 # Количество реплик, необходимое для обработки пиковой нагрузки
+  selector:
+    matchLabels:
+      app: web-приложение
+  template:
+    metadata:
+      labels:
+        app: web-приложение
+    spec:
+      containers:
+      - name: web-приложение
+        image: <образ приложения>
+        resources:
+          requests:
+            cpu: 0.1 # Запрошенное количество CPU, достаточное для штатной работы
+            memory: 128M # Запрошенное количество памяти, достаточное для штатной работы
+          limits:
+            cpu: 1 # Максимальное количество CPU, доступное для обработки пиковых нагрузок
+            memory: 128M # Максимальное количество памяти, доступное для обработки пиковых нагрузок
+        readinessProbe:
+          httpGet:
+            path: /healthcheck # Путь к healthcheck-странице
+            port: 80
+          initialDelaySeconds: 10 # Задержка перед первым проверкой готовности
+          periodSeconds: 10 # Интервал между проверками готовности
+        livenessProbe:
+          httpGet:
+            path: /healthcheck # Путь к healthcheck-странице
+            port: 80
+          initialDelaySeconds: 10 # Задержка перед первым проверкой активности
+          periodSeconds: 10 # Интервал между проверками активности
+  strategy:
+    type: RollingUpdate # Стратегия обновления: поэтапное обновление
+    rollingUpdate:
+      maxSurge: 1 # Максимальное количество реплик, создаваемых во время обновления
+      maxUnavailable: 0 # Максимальное количество реплик, недоступных во время обновления
