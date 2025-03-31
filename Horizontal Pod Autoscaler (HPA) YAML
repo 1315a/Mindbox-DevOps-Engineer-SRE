@@ -1,0 +1,21 @@
+apiVersion: autoscaling/v2beta2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: web-приложение-hpa
+spec:
+  selector:
+    matchLabels:
+      app: web-приложение
+  minReplicas: 2 # Минимальное количество реплик
+  maxReplicas: 6 # Максимальное количество реплик
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: web-приложение
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 50 # Целевое значение использования CPU
